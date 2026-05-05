@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.2.2
+Date: 2026-05-05
+  Changes:
+    - Platform docking tech now requires production science instaid of utility science.
+    - Platform docking tech has logistics 3 as a prerequisite by default
+    - Platform dock parts now have a launch capacity of 50, matching their stack size.
+---------------------------------------------------------------------------------------------------
 Version: 0.2.1
 Date: 2026-01-17
   Bugfixes:

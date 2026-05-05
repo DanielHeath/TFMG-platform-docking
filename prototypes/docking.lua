@@ -1,6 +1,12 @@
 local item_sounds = require("__base__.prototypes.item_sounds")
 local sounds = require("__base__.prototypes.entity.sounds")
 local hit_effects = require("__base__.prototypes.entity.hit-effects")
+
+local function rocket_capacity(capacity) --lazy copy paste from TFMG
+  local rocket_capacity = data.raw["utility-constants"]["default"].rocket_lift_weight
+  local weight = rocket_capacity/capacity
+return weight end
+
 --belt animation set
 
 --local basic_belt_animation_set =
@@ -104,6 +110,7 @@ data:extend({
 		drop_sound = item_sounds.wood_inventory_move,
 		place_result = "TFMG-docking-port",
 		stack_size = 50,
+		weight = rocket_capacity(50),
 		hidden = false,
 	},
 	{ --docking belt item
@@ -118,6 +125,21 @@ data:extend({
 		drop_sound = item_sounds.mechanical_inventory_move,
 		place_result = "TFMG-docking-belt",
 		stack_size = 50,
+		weight = rocket_capacity(50),
+	},
+	{--docking pipe item
+		type = "item",
+		name = "TFMG-docking-pipe",
+		icon = "__TFMG-platform-docking__/graphics/docking-pipe.png",
+		subgroup = "space-related",
+		order = "k-c",
+		inventory_move_sound = item_sounds.metal_small_inventory_move,
+		pick_sound = item_sounds.metal_small_inventory_pickup,
+		drop_sound = item_sounds.metal_small_inventory_move,
+		place_result = "TFMG-docking-pipe",
+		stack_size = 50,
+		weight = rocket_capacity(50),
+		random_tint_color = item_tints.iron_rust,
 	},
 	{ --docking belt
 		type = "linked-belt",
@@ -190,20 +212,7 @@ data:extend({
 		},
 		allow_side_loading = false,
 	},
-	{
-		type = "item",
-		name = "TFMG-docking-pipe",
-		icon = "__TFMG-platform-docking__/graphics/docking-pipe.png",
-		subgroup = "space-related",
-		order = "k-c",
-		inventory_move_sound = item_sounds.metal_small_inventory_move,
-		pick_sound = item_sounds.metal_small_inventory_pickup,
-		drop_sound = item_sounds.metal_small_inventory_move,
-		place_result = "TFMG-docking-pipe",
-		stack_size = 50,
-		random_tint_color = item_tints.iron_rust,
-	},
-	{
+	{--docking pipe entity
 		type = "pipe-to-ground",
 		name = "TFMG-docking-pipe",
 		icon = "__TFMG-platform-docking__/graphics/docking-pipe.png",
@@ -421,14 +430,14 @@ data:extend({
 				recipe = "TFMG-docking-belt",
 			},
 		},
-		prerequisites = { "space-science-pack" },
+		prerequisites = { "space-science-pack", "logistics-3"},
 		unit = {
 			count = 500,
 			ingredients = {
 				{ "automation-science-pack", 1 },
 				{ "logistic-science-pack", 1 },
 				{ "chemical-science-pack", 1 },
-				{ "utility-science-pack", 1 },
+				{ "production-science-pack", 1 },
 				{ "space-science-pack", 1 },
 			},
 			time = 60,
