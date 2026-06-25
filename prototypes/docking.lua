@@ -3,7 +3,7 @@ local sounds = require("__base__.prototypes.entity.sounds")
 local hit_effects = require("__base__.prototypes.entity.hit-effects")
 
 local function rocket_capacity(capacity) --lazy copy paste from TFMG
-  local rocket_capacity = data.raw["utility-constants"]["default"].rocket_lift_weight
+  local rocket_capacity = 1000000 --the vanilla default rocket lift weight. data.raw["utility-constants"]["default"].default_rocket_lift_weight
   local weight = rocket_capacity/capacity
 return weight end
 
