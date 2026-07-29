@@ -1,5 +1,4 @@
-local flib_table = require("__flib__/table")
-
+local for_n_of = require("scripts.for_n_of")
 local direction_string = {
   [defines.direction.north] = "north",
   [defines.direction.east] = "east",
@@ -39,7 +38,7 @@ local link = {} --technically this revison might be less optimized due to redund
     local dock_space_location = dock_entity.surface.platform.space_location
 
     if not dock_space_location then return end --if this dock isnt parked in orbit, we don't add it to the list
-    
+
 
     local direction = dock_storage.direction
 
@@ -81,17 +80,25 @@ local link = {} --technically this revison might be less optimized due to redund
 --link subhandlers, responsible for actually connecting and disconnecting docking ports.
 
   local function link_child(alice,bob)--attempts to link two entities
-
-    --game.print(serpent.block(alice))
-    --game.print(serpent.block(bob))
-
     if alice.type ~= bob.type then return end --if they arent the same prototype, we don't link them
 
     if alice.type == "linked-belt" then --linked belt method
       if alice.linked_belt_type == bob.linked_belt_type then return end --we can't connect if theyre the same direction.
       alice.connect_linked_belts(bob)
     elseif alice.type == "pipe-to-ground" then--fluid method
-      alice.fluidbox.add_linked_connection(1,bob,1)
+      local alice_fluid = alice.get_fluid(1)
+      local bob_fluid = bob.get_fluid(1)
+
+      -- Make the fluid types match, if possible
+      if (alice_fluid == nil) then
+        alice.set_fluid(1, bob_fluid)
+      end
+
+      if (bob_fluid == nil) then
+        bob.set_fluid(1, alice_fluid)
+      end
+
+      alice.add_fluid_box_linked_connection(1,bob,1)
     end
   end
 
@@ -125,14 +132,13 @@ local link = {} --technically this revison might be less optimized due to redund
     if alice.type == "linked-belt" then --linked belt method
       alice.disconnect_linked_belts()
     elseif alice.type == "pipe-to-ground" then--fluid method
-      local fluidbox = alice.fluidbox
-      fluidbox.remove_linked_connection(1)
+      alice.remove_fluid_box_linked_connection(1)
     end
   end
 
   function link.divorce(dock_id) --unlinks all of a docks children.
     local dock_storage = storage.docking_ports[dock_id]
-    
+
     if not dock_storage.children then return end
     if dock_storage.children.positive then
       for _,alice in pairs(dock_storage.children.positive) do
@@ -197,7 +203,7 @@ local link = {} --technically this revison might be less optimized due to redund
     if not dock_storage_1 then return false end
     if not dock_storage_2 then return false end
     return true end
-  
+
   local function get_dock_signals(dock_entity,signal)
     local green = dock_entity.get_signal(signal,defines.wire_connector_id.circuit_green)
     local red = dock_entity.get_signal(signal,defines.wire_connector_id.circuit_red)
@@ -226,7 +232,7 @@ local link = {} --technically this revison might be less optimized due to redund
 
     if not dock_storage_1.zero_dock  and dock_input_signal_1 == 0 then return false end --dont dock if either signal is zero and the dock with 0 signal isnt enabled
     if not dock_storage_2.zero_dock  and dock_input_signal_2 == 0 then return false end
-  
+
    --signal matching code here
   return true end
 
@@ -248,11 +254,11 @@ local link = {} --technically this revison might be less optimized due to redund
     local surface = platform.surface
     if not surface then return end
     local platform_docks = surface.find_entities_filtered{name = "TFMG-docking-port"} --get all our docks
-    
+
     if not platform_docks[1] then return end --if there aren't any docks on this platform, don't do anything.
 
     local space_location = platform.space_location
-    
+
     if space_location then --if our platform is in orbit of something, we prepare our docks for docking
       for _,dock_entity in pairs(platform_docks) do
         local dock_id = dock_entity.unit_number
@@ -291,7 +297,7 @@ local link = {} --technically this revison might be less optimized due to redund
 
   function link.connect_ready_docks(direction) --check our ready docks and see if we can link any.
     for location_name,docks_at_location in pairs(storage.docks[direction]) do
-      storage.dock_k[direction][location_name] = flib_table.for_n_of(docks_at_location, storage.dock_k[direction][location_name], 1,
+      storage.dock_k[direction][location_name] = for_n_of(docks_at_location, storage.dock_k[direction][location_name], 1,
       function(v,dock_id) --weird but its value, key, and we need the key
         link.attempt_connection(dock_id,direction,location_name)
       end)
@@ -299,7 +305,7 @@ local link = {} --technically this revison might be less optimized due to redund
   end
 
   function link.check_linked_docks()--check active connections to see if we should disconnect them.
-    storage.linked_docks_k = flib_table.for_n_of( storage.linked_docks, storage.linked_docks_k, 1,
+    storage.linked_docks_k = for_n_of( storage.linked_docks, storage.linked_docks_k, 1,
     function(v,dock_id_1) --weird but its Value, Key, and we need the key
       dock_id_2 = storage.docking_ports[dock_id_1].linked
       if not link.check_dock_connectability(dock_id_1,dock_id_2) then --if this returns false, we need to undock

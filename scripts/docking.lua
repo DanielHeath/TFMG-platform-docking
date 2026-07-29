@@ -1,4 +1,3 @@
-local flib_table = require("__flib__/table")
 local math2d = require("__core__/lualib/math2d")
 
 local dock_parts_filter = {"TFMG-docking-port","TFMG-docking-belt","TFMG-docking-pipe"}
@@ -106,7 +105,7 @@ local docking = {}
     end
     if docking_part[1] then snap_dock_belt_direction(docking_part[1]) end
   end
-  
+
   local function find_dock_splitter(belt)
     local surface = belt.surface --this was probably not an amazingly clean way to do it, but its functional
     do
@@ -189,7 +188,7 @@ local docking = {}
 
     link.divorce(dock.unit_number)
     dock_storage.children = {positive = {},negative = {}}
-    
+
     if direction == 4 or direction == 12 then --we need to know what axis to check.
       iterate_children("y",position,surface,dock_storage)
     else
